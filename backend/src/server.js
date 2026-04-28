@@ -2,6 +2,7 @@ import express from "express";
 import { ENV } from "./config/env.js";
 import pool from "./config/db.js";
 import expenseRouter from "./routes/expense.route.js";
+import authRouter from "./routes/auth.route.js";
 
 const app = express();
 const PORT = ENV.PORT;
@@ -13,6 +14,7 @@ app.get("/api/test", (req, res) => {
 });
 
 app.use("/api/expenses", expenseRouter);
+app.use("/api/auth", authRouter);
 
 app.listen(PORT, async () => {
   try {
