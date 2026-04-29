@@ -2,7 +2,7 @@ import pool from "../config/db.js";
 
 export async function getExpenseSummary(req, res) {
   try {
-    const { user_id } = req.query;
+    const user_id = req.user.id;
 
     if (!user_id) {
       return res.status(400).json({ error: "Missing user ID" });
@@ -31,5 +31,31 @@ export async function getExpenseSummary(req, res) {
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "Error getting expense summary" });
+  }
+}
+
+export async function getExpensesMonthly(req, res) {
+  try {
+    const user_id = req.user.id;
+
+    if (!user_id) {
+      return res.status(400).json({ error: "Missing user ID" });
+    }
+
+    const query = `
+      SELECT 
+        TO_CHAR(DATE_TRUNC('month', expense_date), 'YYYY-MM') AS month,
+        COALESCE(SUM(amount), 0) AS total
+      FROM expenses
+      WHERE user_id = $1
+      GROUP BY month
+      ORDER BY month;
+    `;
+    const result = await pool.query(query, [user_id]);
+
+    return res.status(200).json(result.rows);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Error getting expenses monthly" });
   }
 }

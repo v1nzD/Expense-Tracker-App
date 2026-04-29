@@ -14,7 +14,7 @@ export async function addExpense(req, res) {
       [user_id, amount, category_id, description, expense_date],
     );
 
-    return res.status(201).json(result.rows[0]);
+    return res.status(201).json({ data: result.rows[0] });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "Error adding expense" });
