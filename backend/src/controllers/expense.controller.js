@@ -9,6 +9,13 @@ export async function addExpense(req, res) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    const cat = await pool.query(
+      "SELECT id FROM categories WHERE id = $1 AND user_id = $2",
+      [category_id, user_id],
+    );
+    if (!cat.rows.length)
+      return res.status(403).json({ error: "Invalid category" });
+
     const result = await pool.query(
       "INSERT INTO expenses (user_id, amount, category_id, description, expense_date) VALUES ($1, $2, $3, $4, $5) RETURNING *",
       [user_id, amount, category_id, description, expense_date],
