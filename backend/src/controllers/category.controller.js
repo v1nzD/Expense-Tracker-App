@@ -63,9 +63,9 @@ export async function deleteCategory(req, res) {
     }
 
     let query =
-      "DELETE FROM categories where id = $1 and category_id = $2 RETURNING id";
+      "DELETE FROM categories where id = $1 and user_id = $2 RETURNING id";
 
-    const result = await pool.query(query, [user_id, category_id]);
+    const result = await pool.query(query, [category_id, user_id]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Category not found" });
