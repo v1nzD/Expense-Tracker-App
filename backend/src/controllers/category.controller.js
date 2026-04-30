@@ -9,7 +9,7 @@ export async function getCategories(req, res) {
     const user_id = req.user.id;
 
     let query =
-      "SELECT id, name FROM categories WHERE id = $1 OR user_id IS NULL ORDER BY name ASC";
+      "SELECT id, name FROM categories WHERE user_id = $1 OR user_id IS NULL ORDER BY name ASC";
 
     const result = await pool.query(query, [user_id]);
 
