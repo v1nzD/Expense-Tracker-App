@@ -148,8 +148,8 @@ export async function editExpense(req, res) {
  */
 export async function deleteExpense(req, res) {
   try {
-    const { user_id } = req.user.id;
-    const { expense_id } = req.params.id;
+    const user_id = req.user.id;
+    const expense_id = req.params.id;
 
     if (!expense_id) {
       return res.status(400).json({ error: "Missing or invalid expense ID" });
