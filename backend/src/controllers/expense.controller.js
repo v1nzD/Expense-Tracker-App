@@ -35,11 +35,17 @@ export async function getExpenses(req, res) {
     const userId = parseInt(user_id);
     const categoryId = category_id ? parseInt(category_id) : null;
 
+    // Guard against invalid category_id
+    if (category_id && isNaN(categoryId)) {
+      return res.status(400).json({ error: "Invalid category_id" });
+    }
+
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
     const offset = (pageNumber - 1) * limitNumber;
 
-    let query = "SELECT * FROM expenses WHERE user_id = $1";
+    // Build shared WHERE clause for both queries
+    let conditions = "WHERE user_id = $1";
     let values = [userId];
     let index = 2;
 
@@ -61,19 +67,28 @@ export async function getExpenses(req, res) {
       index++;
     }
 
-    query += " ORDER BY expense_date DESC";
+    // Run both queries in parallel
+    const [result, countResult] = await Promise.all([
+      pool.query(
+        `SELECT * FROM expenses ${conditions} ORDER BY expense_date DESC LIMIT $${index} OFFSET $${index + 1}`,
+        [...values, limitNumber, offset],
+      ),
+      pool.query(`SELECT COUNT(*) FROM expenses ${conditions}`, values),
+    ]);
 
-    // add pagination
-    query += ` LIMIT $${index} OFFSET $${index + 1}`;
-    values.push(limitNumber, offset);
+    // query += " ORDER BY expense_date DESC";
 
-    const result = await pool.query(query, values);
+    // // add pagination
+    // query += ` LIMIT $${index} OFFSET $${index + 1}`;
+    // values.push(limitNumber, offset);
 
-    // total count
-    const countResult = await pool.query(
-      "SELECT COUNT(*) FROM expenses where user_id = $1",
-      [userId],
-    );
+    // const result = await pool.query(query, values);
+
+    // // total count
+    // const countResult = await pool.query(
+    //   "SELECT COUNT(*) FROM expenses where user_id = $1",
+    //   [userId],
+    // );
     // let countQuery = "SELECT COUNT(*) FROM expenses WHERE user_id = $1";
     // let countValues = [userId];
 
@@ -167,7 +182,7 @@ export async function deleteExpense(req, res) {
     }
 
     let query =
-      "DELETE FROM categories WHERE id =$1 AND user_id = $2 RETURNING id";
+      "DELETE FROM expenses WHERE id =$1 AND user_id = $2 RETURNING id";
 
     const result = await pool.query(query, [expense_id, user_id]);
 

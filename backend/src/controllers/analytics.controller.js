@@ -18,8 +18,10 @@ export async function getExpenseSummary(req, res) {
        GROUP BY c.id, c.name
        ORDER BY total DESC`;
 
-    const totalResult = await pool.query(queryTotal, [user_id]);
-    const categoryResult = await pool.query(queryCategoryTotal, [user_id]);
+    const [totalResult, categoryResult] = await Promise.all([
+      pool.query(queryTotal, [user_id]),
+      pool.query(queryCategoryTotal, [user_id]),
+    ]);
 
     return res.status(200).json({
       total_spent: Number(totalResult.rows[0].total_spent),
