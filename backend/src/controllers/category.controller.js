@@ -55,8 +55,8 @@ export async function addCategory(req, res) {
  */
 export async function deleteCategory(req, res) {
   try {
-    const { user_id } = req.user.id;
-    const { category_id } = parseInt(req.params.id);
+    const user_id = req.user.id;
+    const category_id = parseInt(req.params.id);
 
     if (!category_id) {
       return res.status(400).json({ error: "Missing category id" });
