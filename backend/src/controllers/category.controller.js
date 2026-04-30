@@ -13,7 +13,7 @@ export async function getCategories(req, res) {
 
     const result = await pool.query(query, [user_id]);
 
-    return res.status(200).json(result.rows);
+    return res.status(200).json({ data: result.rows });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "Error gettting categories" });

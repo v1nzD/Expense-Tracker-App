@@ -3,9 +3,12 @@ import {
   addCategory,
   deleteCategory,
   getCategories,
-} from "../controllers/category.controller";
+} from "../controllers/category.controller.js";
+import { protectRoute } from "../middleware/auth.middleware.js";
 
 const categoryRouter = Router();
+
+categoryRouter.use(protectRoute);
 
 categoryRouter.get("/", getCategories);
 categoryRouter.post("/", addCategory);

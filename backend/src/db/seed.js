@@ -1,5 +1,7 @@
-// seed.js
-import pool from "./config/db.js";
+import dotenv from "dotenv";
+console.log("DB_USER:", process.env.DB_USER);
+
+import pool from "../config/db.js";
 
 const DEFAULT_CATEGORIES = [
   "Food & Dining",
@@ -26,9 +28,9 @@ async function seed() {
       params,
     );
 
-    console.log("✅ Default categories seeded successfully");
+    console.log("Default categories seeded successfully");
   } catch (error) {
-    console.error("❌ Seeding failed:", error);
+    console.error("Seeding failed:", error);
   } finally {
     await pool.end();
   }
