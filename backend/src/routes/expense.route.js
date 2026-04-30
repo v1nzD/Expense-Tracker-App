@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { addExpense, getExpenses } from "../controllers/expense.controller.js";
+import {
+  addExpense,
+  deleteExpense,
+  editExpense,
+  getExpenses,
+} from "../controllers/expense.controller.js";
 import {
   getExpensesMonthly,
   getExpenseSummary,
@@ -14,5 +19,7 @@ expenseRouter.post("/", addExpense);
 expenseRouter.get("/", getExpenses);
 expenseRouter.get("/summary", getExpenseSummary);
 expenseRouter.get("/monthly", getExpensesMonthly);
+expenseRouter.put("/edit/:id", editExpense);
+expenseRouter.delete("/delete/:id", deleteExpense);
 
 export default expenseRouter;

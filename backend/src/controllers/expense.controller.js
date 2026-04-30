@@ -88,3 +88,92 @@ export async function getExpenses(req, res) {
     return res.status(500).json({ error: "Error gettting expenses" });
   }
 }
+
+/**
+ * PUT /api/expenses/:id
+ * Update an existing expense
+ */
+export async function editExpense(req, res) {
+  try {
+    const user_id = req.user.id;
+    const expense_id = req.params.id;
+
+    const { amount, description, category_id, expense_date } = req.body;
+
+    if (!expense_id) {
+      return res.status(400).json({ error: "Missing or invalid expense ID" });
+    }
+
+    if (!amount || !expense_date) {
+      return res
+        .status(400)
+        .json({ error: "Amount and expense date are required" });
+    }
+
+    // validate expense
+    const existingExpense = await pool.query(
+      "SELECT * FROM expenses WHERE id = $1 AND user_id = $2",
+      [expense_id, user_id],
+    );
+
+    if (existingExpense.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Expense not found or not authorized" });
+    }
+
+    // update expense
+    let query =
+      "UPDATE expenses SET amount = $1, description=$2, category_id=$3, expense_date=$4 WHERE id = $5 AND user_id=$6 RETURNING *";
+
+    const result = await pool.query(query, [
+      amount,
+      description,
+      category_id,
+      expense_date,
+      expense_id,
+      user_id,
+    ]);
+
+    return res.status(200).json({ data: result.rows[0] });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Error editing expense" });
+  }
+}
+
+/**
+ * DELETE /api/expenses/:id
+ * Delete an existing expense
+ */
+export async function deleteExpense(req, res) {
+  try {
+    const { user_id } = req.user.id;
+    const { expense_id } = req.params.id;
+
+    if (!expense_id) {
+      return res.status(400).json({ error: "Missing or invalid expense ID" });
+    }
+
+    const existingExpense = await pool.query(
+      "SELECT * FROM expenses WHERE id = $1 and user_id = $2",
+      [expense_id, user_id],
+    );
+
+    if (existingExpense.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Expense not found or not authorized" });
+    }
+
+    let query =
+      "DELETE FROM categories WHERE id =$1 AND user_id = $2 RETURNING id";
+
+    const result = await pool.query(query, [expense_id, user_id]);
+
+    return res.status(200).json({ message: "Expense deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Error deleting expense" });
+  }
+}
