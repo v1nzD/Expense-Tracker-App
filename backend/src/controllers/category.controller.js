@@ -1,18 +1,5 @@
 import pool from "../config/db.js";
 
-const DEFAULT_CATEGORIES = [
-  "Food & Dining",
-  "Transport",
-  "Shopping",
-  "Entertainment",
-  "Health & Medical",
-  "Utilities",
-  "Housing",
-  "Travel",
-  "Education",
-  "Other",
-];
-
 /**
  * GET /api/categories
  * Returns all categories belonging to the authenticated user.
@@ -22,7 +9,7 @@ export async function getCategories(req, res) {
     const user_id = req.user.id;
 
     let query =
-      "SELECT id, name FROM categories WHERE id = $1 ORDER BY name ASC";
+      "SELECT id, name FROM categories WHERE id = $1 OR user_id IS NULL ORDER BY name ASC";
 
     const result = await pool.query(query, [user_id]);
 
@@ -88,39 +75,5 @@ export async function deleteCategory(req, res) {
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "Error deleting category" });
-  }
-}
-
-/**
- * POST /api/categories/seed
- * Seeds the default categories for the authenticated user (idempotent — skips duplicates).
- * Call this once after a user registers.
- */
-
-export async function seedDefaultCategories(req, res) {
-  try {
-    const { user_id } = req.user.id;
-
-    // INSERT ... ON CONFLICT DO NOTHING makes this safe to call multiple times
-    const values = DEFAULT_CATEGORIES.map(
-      (_, i) => `($${i * 2 + 1}, $${i * 2 + 2})`,
-    ).join(", ");
-
-    const params = DEFAULT_CATEGORIES.flatMap((name) => [name, user_id]);
-
-    await pool.query(
-      `INSERT INTO categories (name, user_id) VALUES ${values} ON CONFLICT (user_id, name) DO NOTHING`,
-      params,
-    );
-
-    let query =
-      "SELECT id, name FROM categories WHERE user_id = $1 ORDER BY name ASC";
-
-    const result = await pool.query(query, [user_id]);
-
-    return res.status(200).json({ data: result.rows });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ error: "Error seeding categories" });
   }
 }
