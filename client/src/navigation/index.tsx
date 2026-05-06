@@ -2,6 +2,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { useAuthStore } from "../store/authStore";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import LoginScreen from "../screens/auth/LoginScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -11,7 +12,7 @@ const AuthNavigator = () => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name="Login"
-        component={() => null}
+        component={LoginScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen name="Register" component={() => null} />
