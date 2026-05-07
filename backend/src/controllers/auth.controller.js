@@ -38,7 +38,17 @@ export async function registerUser(req, res) {
       hashedPassword,
     ]);
 
-    return res.status(201).json(result.rows[0]);
+    const user = result.rows[0];
+
+    const token = generateToken(user);
+
+    return res.status(201).json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+      },
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "Error registering user" });

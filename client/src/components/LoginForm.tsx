@@ -1,6 +1,16 @@
 import { useState } from "react";
-import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  Alert,
+  Image,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+import { useMutation } from "@tanstack/react-query";
+import { loginUser } from "../api/auth";
+import { useAuthStore } from "../store/authStore";
 
 type LoginFormProps = {
   email: string;
@@ -15,6 +25,28 @@ export default function LoginForm({
   password,
   setPassword,
 }: LoginFormProps) {
+  const setAuth = useAuthStore((state) => state.setAuth);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: loginUser,
+    onSuccess: (data) => {
+      setAuth(data.user, data.token);
+    },
+    onError: (error: any) => {
+      Alert.alert(
+        "Login failed",
+        error?.response?.data?.error || "Something went wrong",
+      );
+    },
+  });
+
+  const handleLogin = () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+    mutate({ email, password });
+  };
   return (
     <View className="flex-1 justify-between">
       {/* Form */}
@@ -47,7 +79,11 @@ export default function LoginForm({
       </View>
 
       {/* Sign in button */}
-      <TouchableOpacity className="bg-accent rounded-full py-[16px] items-center">
+      <TouchableOpacity
+        className="bg-accent rounded-full py-[16px] items-center"
+        onPress={handleLogin}
+        disabled={isPending}
+      >
         <Text className="text-white text-[14px] font-medium">Sign in</Text>
       </TouchableOpacity>
 

@@ -1,6 +1,15 @@
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  Alert,
+  Image,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { registerUser } from "../api/auth";
+import { useAuthStore } from "../store/authStore";
 
 type SignUpFormProps = {
   first_name: string;
@@ -22,6 +31,28 @@ export default function SignUpForm({
   password,
   setPassword,
 }: SignUpFormProps) {
+  const setAuth = useAuthStore((state) => state.setAuth);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: registerUser,
+    onSuccess: (data) => {
+      setAuth(data.user, data.token);
+    },
+    onError: (error: any) => {
+      Alert.alert(
+        "Error",
+        error?.response?.data?.error || "Something went wrong",
+      );
+    },
+  });
+
+  const handleSignUp = () => {
+    if (!first_name || !last_name || !email || !password) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+    mutate({ first_name, last_name, email, password });
+  };
   return (
     <View>
       <View className="gap-[12px]">
@@ -60,7 +91,11 @@ export default function SignUpForm({
         />
       </View>
 
-      <TouchableOpacity className="bg-accent rounded-full py-[16px] items-center mt-[18px]">
+      <TouchableOpacity
+        className="bg-accent rounded-full py-[16px] items-center mt-[18px]"
+        onPress={handleSignUp}
+        disabled={isPending}
+      >
         <Text className="text-white text-[14px] font-medium">
           Create account
         </Text>
