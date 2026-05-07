@@ -11,6 +11,7 @@ type AuthState = {
   token: string | null;
   setAuth: (user: User, token: string) => void;
   logout: () => void;
+  hydrate: () => void;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -33,5 +34,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       user: null,
       token: null,
     });
+  },
+  hydrate: async () => {
+    const token = await SecureStore.getItemAsync("token");
+    if (token) {
+      // decode token to get user info
+      const decoded = JSON.parse(atob(token.split(".")[1]));
+      set({ token, user: { id: decoded.id, email: decoded.email } });
+    }
   },
 }));
