@@ -4,6 +4,8 @@ import * as SecureStore from "expo-secure-store";
 type User = {
   id: number;
   email: string;
+  first_name: string;
+  last_name: string;
 };
 
 type AuthState = {
@@ -40,7 +42,15 @@ export const useAuthStore = create<AuthState>((set) => ({
     if (token) {
       // decode token to get user info
       const decoded = JSON.parse(atob(token.split(".")[1]));
-      set({ token, user: { id: decoded.id, email: decoded.email } });
+      set({
+        token,
+        user: {
+          id: decoded.id,
+          email: decoded.email,
+          first_name: decoded.first_name,
+          last_name: decoded.last_name,
+        },
+      });
     }
   },
 }));
