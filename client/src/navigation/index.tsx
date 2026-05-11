@@ -3,6 +3,7 @@ import { useAuthStore } from "../store/authStore";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import LoginScreen from "../screens/auth/LoginScreen";
+import HomeScreen from "../screens/HomeScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -21,8 +22,8 @@ const AuthNavigator = () => {
 };
 const AppNavigator = () => {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Home" component={() => null} />
+    <Tab.Navigator screenOptions={{ headerShown: false }}>
+      <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Expense" component={() => null} />
       <Tab.Screen name="Analytics" component={() => null} />
     </Tab.Navigator>
