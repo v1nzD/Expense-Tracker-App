@@ -4,7 +4,8 @@ export type Expense = {
   id: number;
   user_id: number;
   amount: number;
-  category_id: number;
+  category_id: number | null;
+  category_name: string | null;
   description: string;
   expense_date: string;
   created_at: string;

@@ -57,52 +57,53 @@ export async function getExpenses(req, res) {
     const offset = (pageNumber - 1) * limitNumber;
 
     // Build shared WHERE clause for both queries
-    let conditions = "WHERE user_id = $1";
+    let conditions = "WHERE e.user_id = $1";
     let values = [userId];
     let index = 2;
 
     if (category_id) {
-      query += ` AND category_id = $${index}`;
+      conditions += ` AND e.category_id = $${index}`;
       values.push(categoryId);
       index++;
     }
 
     if (start_date) {
-      query += ` AND expense_date >= $${index}`;
+      conditions += ` AND e.expense_date >= $${index}`;
       values.push(start_date);
       index++;
     }
 
     if (end_date) {
-      query += ` AND expense_date <= $${index}`;
+      conditions += ` AND e.expense_date <= $${index}`;
       values.push(end_date);
       index++;
     }
 
+    // Queries
+    const expensesQuery = `
+      SELECT 
+        e.*,
+        c.name AS category_name
+      FROM expenses e
+      LEFT JOIN categories c
+        ON e.category_id = c.id
+      ${conditions}
+      ORDER BY e.expense_date DESC
+      LIMIT $${index}
+      OFFSET $${index + 1}
+    `;
+
+    const countQuery = `
+      SELECT COUNT(*)
+      FROM expenses e
+      ${conditions}
+    `;
+
     // Run both queries in parallel
     const [result, countResult] = await Promise.all([
-      pool.query(
-        `SELECT * FROM expenses ${conditions} ORDER BY expense_date DESC LIMIT $${index} OFFSET $${index + 1}`,
-        [...values, limitNumber, offset],
-      ),
-      pool.query(`SELECT COUNT(*) FROM expenses ${conditions}`, values),
+      pool.query(expensesQuery, [...values, limitNumber, offset]),
+      pool.query(countQuery, values),
     ]);
-
-    // query += " ORDER BY expense_date DESC";
-
-    // // add pagination
-    // query += ` LIMIT $${index} OFFSET $${index + 1}`;
-    // values.push(limitNumber, offset);
-
-    // const result = await pool.query(query, values);
-
-    // // total count
-    // const countResult = await pool.query(
-    //   "SELECT COUNT(*) FROM expenses where user_id = $1",
-    //   [userId],
-    // );
-    // let countQuery = "SELECT COUNT(*) FROM expenses WHERE user_id = $1";
-    // let countValues = [userId];
 
     return res.status(200).json({
       page: pageNumber,
