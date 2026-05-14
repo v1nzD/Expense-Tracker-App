@@ -3,9 +3,9 @@ import api from "./client";
 export type Expense = {
   id: number;
   user_id: number;
-  amount: number;
-  category_id: number | null;
-  category_name: string | null;
+  amount: string;
+  category_id: number;
+  category_name: string;
   description: string;
   expense_date: string;
   created_at: string;
@@ -18,22 +18,40 @@ export type ExpenseResponse = {
   data: Expense[];
 };
 
-export type Category = {
+export type ExpenseCategorySummary = {
   name: string;
   total: number;
 };
 
-export type ExpenseSummary = {
-  total_spent: number;
-  by_category: Category[];
+type ExpenseFilters = {
+  category_id?: number | null;
+  start_date?: string | null;
+  end_date?: string | null;
 };
 
-export const getExpenses = async (): Promise<ExpenseResponse> => {
-  const res = await api.get<ExpenseResponse>("/expenses");
+export type Category = {
+  id: number;
+  name: string;
+};
+
+export type ExpenseSummary = {
+  total_spent: number;
+  by_category: ExpenseCategorySummary[];
+};
+
+export const getExpenses = async (
+  filters?: ExpenseFilters,
+): Promise<ExpenseResponse> => {
+  const res = await api.get<ExpenseResponse>("/expenses", { params: filters });
   return res.data;
 };
 
 export const getExpenseSummary = async (): Promise<ExpenseSummary> => {
   const res = await api.get<ExpenseSummary>("/expenses/summary");
+  return res.data;
+};
+
+export const getCategories = async (): Promise<{ data: Category[] }> => {
+  const res = await api.get<{ data: Category[] }>("/categories");
   return res.data;
 };
