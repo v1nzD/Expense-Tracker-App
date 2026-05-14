@@ -6,8 +6,19 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Colors } from "../constants/theme";
 import { useAuthStore } from "../store/authStore";
 import { CATEGORY_META } from "../constants/categories";
+import FAB from "../components/FAB";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { AppStackParamList } from "../navigation";
+import { useNavigation } from "@react-navigation/native";
+
+type NavigationProp = NativeStackNavigationProp<
+  AppStackParamList,
+  "AddExpense"
+>;
 
 export default function HomeScreen() {
+  const navigation = useNavigation<NavigationProp>();
+
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
 
@@ -21,7 +32,7 @@ export default function HomeScreen() {
   const cents = "." + (totalSpent % 1).toFixed(2).slice(2);
 
   return (
-    <SafeAreaView className="flex-1 bg-bg2">
+    <SafeAreaView className="flex-1 bg-bg">
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 100 }}
@@ -128,7 +139,7 @@ export default function HomeScreen() {
           {/* Stat mini cards */}
           {/* todo: make stats dynamic */}
           <View className="flex-row gap-[7px] mb-[13px]">
-            <View className="flex-1 rounded-[11px] bg-bg p-[10px]">
+            <View className="flex-1 rounded-[11px] bg-bg2 p-[10px]">
               <Text
                 style={{ fontSize: 10, color: Colors.text3, marginBottom: 2 }}
               >
@@ -155,7 +166,7 @@ export default function HomeScreen() {
               </View>
             </View>
 
-            <View className="flex-1 rounded-[11px] bg-bg p-[10px]">
+            <View className="flex-1 rounded-[11px] bg-bg2 p-[10px]">
               <Text
                 style={{ fontSize: 10, color: Colors.text3, marginBottom: 2 }}
               >
@@ -178,7 +189,7 @@ export default function HomeScreen() {
               </View>
             </View>
 
-            <View className="flex-1 rounded-[11px] bg-bg p-[10px]">
+            <View className="flex-1 rounded-[11px] bg-bg2 p-[10px]">
               <Text
                 style={{ fontSize: 10, color: Colors.text3, marginBottom: 2 }}
               >
@@ -294,6 +305,9 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Add expense FAB */}
+      <FAB onPress={() => navigation.navigate("AddExpense")} />
     </SafeAreaView>
   );
 }
