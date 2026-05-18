@@ -12,23 +12,13 @@ type LoginPayload = {
   password: string;
 };
 
-type User = {
-  id: number;
-  email: string;
-  first_name: string;
-  last_name: string;
-};
-
-type LoginResponse = {
-  user: User;
-  token: string;
-};
-
 type AuthResponse = {
   token: string;
   user: {
     id: number;
     email: string;
+    first_name: string;
+    last_name: string;
   };
 };
 
@@ -42,9 +32,9 @@ export const registerUser = async (data: Register) => {
   }
 };
 
-export const loginUser = async (data: LoginPayload): Promise<LoginResponse> => {
+export const loginUser = async (data: LoginPayload) => {
   try {
-    const res = await api.post("/auth/login", data);
+    const res = await api.post<AuthResponse>("/auth/login", data);
 
     return res.data;
   } catch (error) {
