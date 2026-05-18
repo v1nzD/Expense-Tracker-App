@@ -5,7 +5,7 @@ export async function addExpense(req, res) {
     const user_id = req.user.id;
     const { amount, category_id, description, expense_date } = req.body;
 
-    if (!amount || !expense_date) {
+    if (!amount || amount == null || !expense_date) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
