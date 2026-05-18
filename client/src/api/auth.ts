@@ -7,9 +7,21 @@ type Register = {
   password: string;
 };
 
-type Login = {
+type LoginPayload = {
   email: string;
   password: string;
+};
+
+type User = {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+};
+
+type LoginResponse = {
+  user: User;
+  token: string;
 };
 
 type AuthResponse = {
@@ -30,9 +42,9 @@ export const registerUser = async (data: Register) => {
   }
 };
 
-export const loginUser = async (data: Login) => {
+export const loginUser = async (data: LoginPayload): Promise<LoginResponse> => {
   try {
-    const res = await api.post<AuthResponse>("/auth/login", data);
+    const res = await api.post("/auth/login", data);
 
     return res.data;
   } catch (error) {
