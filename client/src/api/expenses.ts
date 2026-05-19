@@ -38,6 +38,14 @@ export type AddExpensePayload = {
   payment_method: "cash" | "card";
 };
 
+export type EditExpensePayload = {
+  amount: string;
+  category_id: number | null;
+  description: string;
+  expense_date: string;
+  payment_method: "cash" | "card";
+};
+
 export type Category = {
   id: number;
   name: string;
@@ -69,5 +77,13 @@ export const addExpense = async (
   expense: AddExpensePayload,
 ): Promise<{ data: Expense }> => {
   const res = await api.post<{ data: Expense }>("/expenses", expense);
+  return res.data;
+};
+
+export const editExpense = async (
+  id: number,
+  data: EditExpensePayload,
+): Promise<Expense> => {
+  const res = await api.put<Expense>(`/expenses/edit/${id}`, data);
   return res.data;
 };
