@@ -9,6 +9,7 @@ export type Expense = {
   description: string;
   expense_date: string;
   created_at: string;
+  payment_method: "cash" | "card";
 };
 
 export type ExpenseResponse = {
@@ -31,9 +32,10 @@ type ExpenseFilters = {
 
 export type AddExpensePayload = {
   amount: number;
-  category_id: number;
+  category_id: number | null;
   description: string;
   expense_date: string;
+  payment_method: "cash" | "card";
 };
 
 export type Category = {
