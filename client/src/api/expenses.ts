@@ -87,3 +87,7 @@ export const editExpense = async (
   const res = await api.put<Expense>(`/expenses/edit/${id}`, data);
   return res.data;
 };
+
+export const deleteExpense = async (id: number): Promise<void> => {
+  await api.delete(`/expenses/delete/${id}`);
+};
