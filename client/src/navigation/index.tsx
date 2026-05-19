@@ -4,9 +4,18 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import LoginScreen from "../screens/auth/LoginScreen";
 import HomeScreen from "../screens/HomeScreen";
+import ExpensesScreen from "../screens/ExpensesScreen";
+import AddExpenseScreen from "../screens/AddExpenseScreen";
+import { RootStackParamList } from "../types/navigation";
+
+// export type AppStackParamList = {
+//   Tabs: undefined;
+//   AddExpense: undefined;
+// };
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+const AppStack = createNativeStackNavigator<RootStackParamList>();
 
 const AuthNavigator = () => {
   return (
@@ -20,13 +29,29 @@ const AuthNavigator = () => {
     </Stack.Navigator>
   );
 };
-const AppNavigator = () => {
+
+const TabNavigator = () => {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Expense" component={() => null} />
+      <Tab.Screen name="Expenses" component={ExpensesScreen} />
       <Tab.Screen name="Analytics" component={() => null} />
     </Tab.Navigator>
+  );
+};
+const AppNavigator = () => {
+  return (
+    <AppStack.Navigator screenOptions={{ headerShown: false }}>
+      <AppStack.Screen name="Tabs" component={TabNavigator} />
+      <AppStack.Screen
+        name="AddExpense"
+        component={AddExpenseScreen}
+        options={{
+          presentation: "modal",
+          animation: "slide_from_bottom",
+        }}
+      />
+    </AppStack.Navigator>
   );
 };
 
