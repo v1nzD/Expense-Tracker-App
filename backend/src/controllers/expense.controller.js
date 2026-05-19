@@ -3,7 +3,8 @@ import pool from "../config/db.js";
 export async function addExpense(req, res) {
   try {
     const user_id = req.user.id;
-    const { amount, category_id, description, expense_date } = req.body;
+    const { amount, category_id, description, expense_date, payment_method } =
+      req.body;
 
     if (!amount || amount == null || !category_id || !expense_date) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -22,8 +23,15 @@ export async function addExpense(req, res) {
       return res.status(403).json({ error: "Invalid category" });
 
     const result = await pool.query(
-      "INSERT INTO expenses (user_id, amount, category_id, description, expense_date) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [user_id, amount, category_id, description, expense_date],
+      "INSERT INTO expenses (user_id, amount, category_id, description, expense_date, payment_method) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      [
+        user_id,
+        amount,
+        category_id,
+        description,
+        expense_date,
+        payment_method ?? "card",
+      ],
     );
 
     return res.status(201).json({ data: result.rows[0] });
