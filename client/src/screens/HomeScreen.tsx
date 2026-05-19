@@ -8,16 +8,17 @@ import { useAuthStore } from "../store/authStore";
 import { CATEGORY_META } from "../constants/categories";
 import FAB from "../components/FAB";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { AppStackParamList } from "../navigation";
+import { RootStackParamList } from "../types/navigation";
 import { useNavigation } from "@react-navigation/native";
 
-type NavigationProp = NativeStackNavigationProp<
-  AppStackParamList,
-  "AddExpense"
->;
+// type NavigationProp = NativeStackNavigationProp<
+//   AppStackParamList,
+//   "AddExpense"
+// >;
 
 export default function HomeScreen() {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
@@ -308,6 +309,10 @@ export default function HomeScreen() {
 
       {/* Add expense FAB */}
       <FAB onPress={() => navigation.navigate("AddExpense")} />
+
+      <TouchableOpacity onPress={logout}>
+        <Text>Logout</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
