@@ -3,6 +3,7 @@ import RootNavigator from "./src/navigation";
 import "./global.css";
 import { useEffect } from "react";
 import { useAuthStore } from "./src/store/authStore";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const queryClient = new QueryClient();
 
@@ -13,8 +14,10 @@ export default function App() {
     hydrate();
   }, []);
   return (
-    <QueryClientProvider client={queryClient}>
-      <RootNavigator />
-    </QueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <RootNavigator />
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
