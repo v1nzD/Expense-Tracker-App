@@ -29,6 +29,13 @@ type ExpenseFilters = {
   end_date?: string | null;
 };
 
+export type AddExpensePayload = {
+  amount: number;
+  category_id: number;
+  description: string;
+  expense_date: string;
+};
+
 export type Category = {
   id: number;
   name: string;
@@ -53,5 +60,12 @@ export const getExpenseSummary = async (): Promise<ExpenseSummary> => {
 
 export const getCategories = async (): Promise<{ data: Category[] }> => {
   const res = await api.get<{ data: Category[] }>("/categories");
+  return res.data;
+};
+
+export const addExpense = async (
+  expense: AddExpensePayload,
+): Promise<{ data: Expense }> => {
+  const res = await api.post<{ data: Expense }>("/expenses", expense);
   return res.data;
 };
