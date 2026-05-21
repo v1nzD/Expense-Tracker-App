@@ -5,12 +5,14 @@ import {
   SectionList,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Category,
+  deleteExpense,
   Expense,
   ExpenseResponse,
   getCategories,
@@ -23,12 +25,13 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import FAB from "../components/FAB";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
-import { AppStackParamList } from "../navigation";
+import { Swipeable } from "react-native-gesture-handler";
+import { RootStackParamList } from "../types/navigation";
 
-type NavigationProp = NativeStackNavigationProp<
-  AppStackParamList,
-  "AddExpense"
->;
+// type NavigationProp = NativeStackNavigationProp<
+//   RootStackParamList,
+//   "AddExpense"
+// >;
 
 const groupExpensesByDate = (expenses: Expense[]) => {
   const groups: { [key: string]: Expense[] } = {};
@@ -63,7 +66,10 @@ const groupExpensesByDate = (expenses: Expense[]) => {
 };
 
 export default function ExpensesScreen() {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const queryClient = useQueryClient();
 
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [startDate, setStartDate] = useState<string | null>(null);
@@ -93,46 +99,112 @@ export default function ExpensesScreen() {
     queryFn: getCategories,
   });
 
+  const { mutate: deleteExpenseMutate, isPending: isDeleteExpensePending } =
+    useMutation({
+      mutationFn: deleteExpense,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["expenses"] });
+        queryClient.invalidateQueries({ queryKey: ["expense-summary"] });
+        navigation.goBack();
+      },
+    });
+
+  // data
   const sections = groupExpensesByDate(expenses?.data || []);
+
+  const handleDeleteExpense = (expenseId: number) => {
+    Alert.alert(
+      "Delete Expense",
+      `Are you sure you want to delete this expense?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deleteExpenseMutate(expenseId),
+        },
+      ],
+    );
+  };
+
+  const renderRightActions = (item: Expense) => (
+    <View className="flex-row">
+      {/* Edit action */}
+      <TouchableOpacity
+        onPress={() => navigation.navigate("AddExpense", { expense: item })}
+        style={{
+          backgroundColor: Colors.accentBg,
+          justifyContent: "center",
+          alignItems: "center",
+          width: 70,
+        }}
+      >
+        <Ionicons name="pencil-outline" size={18} color={Colors.accent} />
+        <Text style={{ fontSize: 10, color: Colors.accent, marginTop: 3 }}>
+          Edit
+        </Text>
+      </TouchableOpacity>
+
+      {/* Delete action */}
+      <TouchableOpacity
+        onPress={() => handleDeleteExpense(item.id)}
+        style={{
+          backgroundColor: Colors.redBg,
+          justifyContent: "center",
+          alignItems: "center",
+          width: 70,
+        }}
+      >
+        <Ionicons name="trash-outline" size={18} color={Colors.red} />
+        <Text style={{ fontSize: 10, color: Colors.red, marginTop: 3 }}>
+          Delete
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   // Render expenses for SectionList
   const renderExpenses = ({ item }: { item: Expense }) => {
     const category =
       CATEGORY_META[item.category_name ?? ""] ?? CATEGORY_META["Other"];
     return (
-      <View
-        className="flex-row items-center gap-[9px] px-[15px] py-[11px] rounded-[13px] mb-2 mx-[15px]"
-        style={{ backgroundColor: Colors.bg2 }}
-      >
-        {/* Category icon */}
+      <Swipeable renderRightActions={() => renderRightActions(item)}>
         <View
-          className="w-[36px] h-[36px] rounded-[11px] items-center justify-center "
-          style={{ backgroundColor: category.color }}
+          className="flex-row items-center gap-[9px] px-[15px] py-[11px] rounded-[13px] mb-2 mx-[15px]"
+          style={{ backgroundColor: Colors.bg2 }}
         >
-          <Text style={{ fontSize: 15 }}>{category.icon}</Text>
-        </View>
-
-        {/* Expense info */}
-        <View className="flex-1">
-          <Text
-            style={{ fontSize: 13, fontWeight: "500", color: Colors.text1 }}
+          {/* Category icon */}
+          <View
+            className="w-[36px] h-[36px] rounded-[11px] items-center justify-center "
+            style={{ backgroundColor: category.color }}
           >
-            {item.description}
-          </Text>
-          <Text style={{ fontSize: 11, color: Colors.text3, marginTop: 2 }}>
-            {item.category_name ?? "Uncategorised"} ·{" "}
-            {new Date(item.created_at).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+            <Text style={{ fontSize: 15 }}>{category.icon}</Text>
+          </View>
+
+          {/* Expense info */}
+          <View className="flex-1">
+            <Text
+              style={{ fontSize: 13, fontWeight: "500", color: Colors.text1 }}
+            >
+              {item.description}
+            </Text>
+            <Text style={{ fontSize: 11, color: Colors.text3, marginTop: 2 }}>
+              {item.category_name ?? "Uncategorised"} ·{" "}
+              {new Date(item.created_at).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </Text>
+          </View>
+
+          {/* Amount */}
+          <Text
+            style={{ fontSize: 14, fontWeight: "500", color: Colors.text1 }}
+          >
+            -${parseFloat(item.amount).toFixed(2)}
           </Text>
         </View>
-
-        {/* Amount */}
-        <Text style={{ fontSize: 14, fontWeight: "500", color: Colors.text1 }}>
-          -${parseFloat(item.amount).toFixed(2)}
-        </Text>
-      </View>
+      </Swipeable>
     );
   };
 
