@@ -7,7 +7,7 @@ type Register = {
   password: string;
 };
 
-type Login = {
+type LoginPayload = {
   email: string;
   password: string;
 };
@@ -17,6 +17,8 @@ type AuthResponse = {
   user: {
     id: number;
     email: string;
+    first_name: string;
+    last_name: string;
   };
 };
 
@@ -30,7 +32,7 @@ export const registerUser = async (data: Register) => {
   }
 };
 
-export const loginUser = async (data: Login) => {
+export const loginUser = async (data: LoginPayload) => {
   try {
     const res = await api.post<AuthResponse>("/auth/login", data);
 
