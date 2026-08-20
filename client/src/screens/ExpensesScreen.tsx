@@ -328,11 +328,10 @@ export default function ExpensesScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={{ flexGrow: 0 }}
+        style={{ flexGrow: 0, minHeight: 42 }}
         contentContainerStyle={{
           paddingHorizontal: 15,
           gap: 7,
-          paddingBottom: 11,
           alignItems: "center",
         }}
       >
