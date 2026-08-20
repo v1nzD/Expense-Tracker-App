@@ -65,6 +65,22 @@ const groupExpensesByDate = (expenses: Expense[]) => {
   });
 };
 
+// Helper for displaying selected dates consistently
+const formatDisplayDate = (date: string) => {
+  return new Date(`${date}T00:00:00`).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
+// Helper for formatting dates sent to the API
+const formatDateForApi = (date: Date) => {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+    date.getDate(),
+  ).padStart(2, "0")}`;
+};
+
 export default function ExpensesScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -244,7 +260,8 @@ export default function ExpensesScreen() {
             gap: 6,
             backgroundColor: Colors.bg2,
             borderWidth: 0.5,
-            borderColor: Colors.border2,
+            borderColor:
+              pickerMode === "start" ? Colors.accent : Colors.border2,
             borderRadius: 11,
             padding: 8,
             paddingHorizontal: 11,
@@ -259,13 +276,7 @@ export default function ExpensesScreen() {
               flex: 1,
             }}
           >
-            {startDate
-              ? new Date(startDate).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })
-              : "Start date"}
+            {startDate ? formatDisplayDate(startDate) : "Start date"}
           </Text>
           <Ionicons name="chevron-down" size={10} color={Colors.text3} />
         </TouchableOpacity>
@@ -282,7 +293,7 @@ export default function ExpensesScreen() {
             gap: 6,
             backgroundColor: Colors.bg2,
             borderWidth: 0.5,
-            borderColor: Colors.border2,
+            borderColor: pickerMode === "end" ? Colors.accent : Colors.border2,
             borderRadius: 11,
             padding: 8,
             paddingHorizontal: 11,
@@ -297,16 +308,35 @@ export default function ExpensesScreen() {
               flex: 1,
             }}
           >
-            {endDate
-              ? new Date(endDate).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })
-              : "End date"}
+            {endDate ? formatDisplayDate(endDate) : "End date"}
           </Text>
           <Ionicons name="chevron-down" size={10} color={Colors.text3} />
         </TouchableOpacity>
+
+        {/* Clear date filters */}
+        {(startDate || endDate) && (
+          <TouchableOpacity
+            onPress={() => {
+              setStartDate(null);
+              setEndDate(null);
+              setPickerMode(null);
+            }}
+            style={{
+              paddingVertical: 6,
+              paddingLeft: 2,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 11,
+                fontWeight: "500",
+                color: Colors.accent,
+              }}
+            >
+              Clear
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Date picker modal */}
@@ -316,9 +346,31 @@ export default function ExpensesScreen() {
         display="inline"
         themeVariant="light"
         onConfirm={(date) => {
-          const formatted = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-          if (pickerMode === "start") setStartDate(formatted);
-          else setEndDate(formatted);
+          // Use helper instead of formatting inline
+          const formatted = formatDateForApi(date);
+
+          if (pickerMode === "start") {
+            setStartDate(formatted);
+
+            // Clear previous end date when starting a new range
+            setEndDate(null);
+
+            // Automatically move to end date
+            setPickerMode("end");
+
+            return;
+          }
+
+          // Prevent an invalid date range
+          if (startDate && formatted < startDate) {
+            Alert.alert(
+              "Invalid date range",
+              "End date cannot be before the start date.",
+            );
+            return;
+          }
+
+          setEndDate(formatted);
           setPickerMode(null);
         }}
         onCancel={() => setPickerMode(null)}
