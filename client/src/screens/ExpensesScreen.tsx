@@ -409,8 +409,12 @@ export default function ExpensesScreen() {
             {title}
           </Text>
         )}
+        stickySectionHeadersEnabled={false}
         SectionSeparatorComponent={() => <View style={{ height: 6 }} />}
-        contentContainerStyle={{ paddingVertical: 10, paddingBottom: 100 }}
+        contentContainerStyle={{
+          paddingVertical: 10,
+          paddingBottom: 100,
+        }}
         showsVerticalScrollIndicator={false}
       />
 
