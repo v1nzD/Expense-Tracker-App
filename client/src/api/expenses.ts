@@ -28,6 +28,13 @@ type ExpenseFilters = {
   category_id?: number | null;
   start_date?: string | null;
   end_date?: string | null;
+  limit?: number;
+  page?: number;
+};
+
+export type MonthlyExpense = {
+  month: string;
+  total: string;
 };
 
 export type AddExpensePayload = {
@@ -90,4 +97,9 @@ export const editExpense = async (
 
 export const deleteExpense = async (id: number): Promise<void> => {
   await api.delete(`/expenses/delete/${id}`);
+};
+
+export const getExpensesMonthly = async (): Promise<MonthlyExpense[]> => {
+  const res = await api.get<MonthlyExpense[]>("expenses/monthly");
+  return res.data;
 };
