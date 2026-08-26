@@ -7,6 +7,7 @@ import HomeScreen from "../screens/HomeScreen";
 import ExpensesScreen from "../screens/ExpensesScreen";
 import AddExpenseScreen from "../screens/AddExpenseScreen";
 import { RootStackParamList } from "../types/navigation";
+import AnalyticsScreen from "../screens/AnalyticsScreen";
 
 // export type AppStackParamList = {
 //   Tabs: undefined;
@@ -35,7 +36,7 @@ const TabNavigator = () => {
     <Tab.Navigator screenOptions={{ headerShown: false }}>
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Expenses" component={ExpensesScreen} />
-      <Tab.Screen name="Analytics" component={() => null} />
+      <Tab.Screen name="Analytics" component={AnalyticsScreen} />
     </Tab.Navigator>
   );
 };
